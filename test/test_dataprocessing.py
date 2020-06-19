@@ -27,7 +27,7 @@ def test_Itemizer_transformer():
     N = 60
     future_len = 25
     sample = np.random.rand(N, F)
-    itemizer = dataprocessing.HeatingItemizerTrans(future_len)
+    itemizer = dataprocessing.HeatingItemiser(future_len, transformer=True)
     out_tuple = itemizer.encodes(sample)
     x12, y = out_tuple
     x1, x2 = x12
