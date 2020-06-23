@@ -38,13 +38,9 @@ class HeatingItemiser(ItemTransform):
         """
         x1 = input[:-self.future_len, :]
         x2 = input[-self.future_len:, self.command_column]
-        preset_temperature = x1[:, self.temperature_column]
+        past_temperature = x1[:, self.temperature_column]
         future_temperature = input[-self.future_len:, self.temperature_column]
-        N = len(preset_temperature)
-        RG_len = int(N * self.average_over)
-        RG = N - RG_len
-        avg_temp = 0
-        avg_temp = np.nanmean(preset_temperature[RG:N])
+        avg_temp = self.get_value_to_substract(past_temperature)
         target_y = future_temperature - avg_temp
         if self.transformer:
             target_shift = np.copy(target_y)
@@ -57,3 +53,32 @@ class HeatingItemiser(ItemTransform):
         x2t = tensor(x2_out).float()
         yt = tensor(target_y).float()
         return ((x1t, x2t), yt)
+
+    def decodes(self, data):
+        """
+        From a tuple of tensors ((x1, x2), y) get back a tuple of tensors but with some inverse modifications
+        from encodes().
+
+        Transpose x1,
+        add to y the average of last x% temperature values from x1.
+
+        :param data:
+        :return:
+        """
+        x12, y = data
+        x1 = x12[0].transpose(0, 1).numpy()
+        x2 = x12[1].numpy()
+        y = y.numpy()
+        past_temperature = x1[:, self.temperature_column]
+        avg_temp = self.get_value_to_substract(past_temperature)
+        y_out = y + avg_temp
+        return (x1, x2), y_out
+
+    def get_value_to_substract(self, past_data):
+        N = past_data.shape[0]
+        RG_len = int(N * self.average_over)
+        RG = N - RG_len
+        avg_temp = 0
+        avg_temp = np.nanmean(past_data[RG:N])
+        return avg_temp
+

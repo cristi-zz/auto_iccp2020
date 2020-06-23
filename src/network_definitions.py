@@ -405,7 +405,7 @@ class TransformerFull(nn.Module):
         :param in_features: F
         :param past_steps:  S
         :param future_steps:  T
-        :param target_features: F2, the number of target features (known and unknown) that will be fed into decoder. It is NOT y!
+        :param target_features: F2, the number of target features (known and unknown)
         :param d_model: Number of internal features in the Transformer
         :param dim_feedforward: No of units in the last layer of Transformer
         """
