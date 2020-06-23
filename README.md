@@ -58,6 +58,9 @@ Create a Python Env and "compile" Jupyter lab support:
 
 Fast dot AI specifics:
 
+Head to a folder, clone and install the fastai2 and fastcore libraries. Make sure that the conda environment created above
+is active! 
+
     git clone https://github.com/fastai/fastcore.git
     cd fastcore
     pip install -e ".[dev]"
@@ -67,6 +70,6 @@ Fast dot AI specifics:
     cd fastai2
     pip install -e ".[dev]"
 
-Now clone the repo and start the ``jupyter lab`` in ``src/`` folder.
+Now clone this repo and start the ``jupyter lab`` in ``src/`` folder.
 
  

@@ -53,7 +53,7 @@ to the ML system. It is used to compute a loss and train the model.
 
 The rest of the lines are responses from the six architectures. 
 
-Note that the training mechanism (callbacks, losses, etc) are very similar to the one employed on the real data.
+Note that the training mechanism (callbacks, losses, etc) is very similar to the one employed on the real data.
 The difference is the running harness (hyperparameter search, more validation sets, more iterations). 
 
 ## network_definitions.py
