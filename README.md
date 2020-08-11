@@ -2,7 +2,7 @@
 
 
 Supporting code for "Evaluation of Deep Learning architectures for System Identification. Applications for a household 
-heating system" paper submitted at ICCP 2020.
+heating system" paper submitted at ICCP 2020. [Download draft paper.](http://users.utcluj.ro/~visoft/publications.php?action=getpdf&artid=iccp_20)
 
 Suppose you want to control a system such that, a certain measurement (eg temperature) stays at a fixed value. Usually one can
 employ a PID controller. This, will react to the difference between the desired value and current measurement, to the speed of
