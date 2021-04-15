@@ -1,5 +1,6 @@
 # System Identification using several Deep Learning architectures
 
+## Note: This branch is not actively maintained. Install instructions might fail. The code is kept here for reference only. 
 
 Supporting code for "Evaluation of Deep Learning architectures for System Identification. Applications for a household 
 heating system" paper submitted at ICCP 2020. [Download draft paper](http://users.utcluj.ro/~visoft/publications.php?action=getpdf&artid=iccp_20) or watch [presentation video](https://youtu.be/sIxhJLVVqlk)
