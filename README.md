@@ -1,89 +1,72 @@
-# System Identification using several Deep Learning architectures
+Support repository for:
+# Inductive biases and Self Supervised Learning in modelling a physical heating system
 
+## Overview and motivation
 
-Supporting code for "Evaluation of Deep Learning architectures for System Identification. Applications for a household 
-heating system" paper submitted at ICCP 2020. [Download draft paper](http://users.utcluj.ro/~visoft/publications.php?action=getpdf&artid=iccp_20) or watch [presentation video](https://youtu.be/sIxhJLVVqlk)
+Suppose you want to control a system in a way that a certain measurement (eg temperature) stays at a fixed value. If your system 
+reacts to its inputs with a considerable delay (eg heating element has high inertia) classical alternatives will induce 
+oscillations in the system. One very interesting alternative is to use a Model Predictive Control loop. This MPC, takes
+a model (how the inputs are influencing the output) and gives it a lot of potential commands. The model will output some
+predictions about the potential outputs, and the MPC can decide which is the best course of action with respect to some 
+constraints and objectives. 
 
-Suppose you want to control a system such that, a certain measurement (eg temperature) stays at a fixed value. Usually one can
-employ a PID controller. This, will react to the difference between the desired value and current measurement, to the speed of
-change and to the small systematic errors that accumulate. Pretty handy tool in automation.
+Present paper focuses only on the modelling part of the MPC loop and, of course, tries to model the system using the current
+hype (as of 2021), neural networks (NN). A NN that can be used in a MPC loop must be able to take some inputs (info about
+the current state and a list of future commands) and predict some outputs (future values of some targets). If the network
+has to ingest only the current state and output one (or more) future states, we would be in classical supervised learning
+framework. However, adding the future commands that need to be evaluated complicates things. 
 
-If your system have a delay (eg heating element have high inertia) and use a PID, you will get heat into the system when the temperature is quite low.
-And the heating element will continue to heat (due to inertia) well after the temperature rose to the desired value.
+Previous work took some popular NN architectures and "tuned" them, so they can ingest and process data in above format. 
+One architecture took the "SOTA crown", that is, a Recurrent Neural Network with an Attention mechanism between the encoding
+and decoding layers. 
 
-There is another type of control called Model Predictive Control. Here, different commands are applied to a "model" of the
-system and the *best* command set (wrt to some criteria) is sent to the actual system. **In theory**, such a controller
-could start the heating before the temperature gets under the desired value. So, by the time the temperature at the sensor
-is lower than the threshold the heating element is already radiating and it radiates just enough, without overheating.
+Current paper designs a network architecture guided by how the actual thermal system works. There are delays, unknown states,
+unknown variable interactions and it approximates them using several inductive biases. The delays are modelled as a convolution and
+the interactions are discovered using a fully connected (sub)network. Moreover, there is an assumption that the possible delays
+are system dependent (false, for a thermal system, hence we introduce bias in the model) and once these delays are removed,
+the feature interaction can be learned from the data. The motivation for these biases is that Recurrent networks are serial
+networks, very hard to parallelize. Each time step depends on the previous time step, and it is not possible to compute
+all time steps in parallel. Introduced biases try to separate the time dependent component from feature dependent 
+component to achieve a faster-to-train network by leveraging massive parallel computation cores available.
 
+## Data
 
-Well, that's the theory. In automation field, this "model" is vital for a proprer MPC operation. This is where present research
-comes into play.
+The training data is from a household. 15 sensors were placed on various components of the heating system (and not only).
+Unfortunately there are several privacy issues that prevent us from putting everything online. However, a small, curated
+and slightly processed dataset is made public.
 
-Now, we have tons of architectures and models in Machine Learning. Are they any good at modelling a real system? A model that 
-could be used inside a Smith controller?
+There are many features removed (eg is tap water faucet open?) and only few days exported in the public sets. 
+The train/validation samples presented here are from train/validation period used in the paper. To compensate for reduced
+data diversity I augmented the data by a denser oversampling. 
 
-This paper is a first step towards this. A regular time series multivariate model takes previous sensor values and 
-previous commands sent to the system and predicts one or more future values of a target.
+The models presented in the paper are too big and overfit on such small dataset. I hand tuned few networks, basically by
+heavily trim the internal FCN component until there was some learning.
 
-What is special about a model used in an MPC is that it also need to consider some future commands that will be sent
-to the system. So it have to predict some future values based on the previous state AND some new commands that will be sent.
+A reader that wants to test some other models on the data should also put some computing power in a hyperparemeter 
+search for the above models.
 
-The NN architectures on the other hand have the advantage that some non command inputs, that depend on the environment
-can also be predicted, especially if their behavior follow a pattern (eg day/night temperature cycles). This prediction
-happens intrinsically to the model and is used to make better predictions given a certain set of future commands. 
-
-Long story short, here we adapted several well known architectures to be able to ingest such data AND be able to learn
-something from it.
-
-There are six architectures and three datasets in the paper. Unfortunately the most interesting dataset has been collected from a 
-private household and contain too much personal information. It can't be shared.
-
-The networks developed here can be used in other fields, where one needs to take some decisions given present
-data. An example is with data compression. Suppose that one needs to communicate over a low throughput segment.
-For a given problem, some data is relevant, some data is not. Also, there are tunable lossy compression schemas. The models
-presented here could be used to determine, on the fly, some compression parameters that will not alter the **data** in such
-a way that the **information** retrieval is not hindered. This model must be tuned of course for the specific problem 
-at hand. The criteria here is quite complex (do not decrease the information retrieval quality) and can't be directly
-optimized. These networks can act as a proxy for the actual retrieval quality.
- 
-Head to the ``Installation`` section and then to ``src`` folder for a short explanation about the experiments.
- 
+Head to the ``data_sample`` folder in this repo and to ``src`` for examples on how to load and use it.
 
 ## Installation:
 
-Tested on Linux (Ubuntu 16.04+). Possibly runnable under Windows too. It relies on Anaconda environment.
+Tested on Linux (Ubuntu 18.04+). Possibly runnable under Windows too. It relies on Anaconda environment.
 
-Uses Python and PyTorch and fast dot ai v2. 
-
-One must install fast dot ai in DEV mode. Version 2 is still being developed so things might change and present code will break. 
-Create an issue and I'll sort it out eventually.
-
- * fastai2 is at commit bf455de9bc37c76f7f92b3c43227ef9d4779b614
- * fastcore is at commit 4a2d5ea702d0dc4a6c34c4acefafd9b494d9e222
+Uses Python and PyTorch and fast.ai . 
 
 Install CUDA 10.2: https://developer.nvidia.com/cuda-downloads
 
 Create a Python Env and "compile" Jupyter lab support:
 
-    conda create -y --copy -c conda-forge -c fastai -c pytorch -n f2 python\>=3.7 pytest numpy pandas matplotlib seaborn pillow scikit-learn scipy spacy pywavelets psutil pytest requests pyyaml jupyterlab ipywidgets ipympl nodejs\>=10  pytorch\>=1.3.0 torchvision\>=0.5 fastprogress\>=0.1.22 cudatoolkit 
-    conda activate f2
+    conda create -y --copy -c fastai -c pytorch -n f2i python=3.8 pytest numpy=1.19 pandas=1.2 matplotlib=3.3 seaborn pillow scikit-learn scipy spacy pywavelets psutil pytest requests pyyaml jupyterlab ipywidgets ipympl nodejs\>=10  pytorch=1.8.1 fastprogress\>=0.1.22 fastai cudatoolkit\>=10.2 
+    conda activate f2i
     jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib
 
-Fast dot AI specifics:
 
-Head to a folder, clone and install the fastai2 and fastcore libraries. Make sure that the conda environment created above
-is active! 
+Now clone this repo and start the ``jupyter lab`` in ``src`` folder.
 
-    git clone https://github.com/fastai/fastcore.git
-    cd fastcore
-    pip install -e ".[dev]"
+Head to the  ``src`` folder for a short explanation about the experiments. The notebooks are exported as PDFs for quick inspection
+without the need to install and run the whole environment.
 
+### Note: 
 
-    git clone https://github.com/fastai/fastai2
-    cd fastai2
-    pip install -e ".[dev]"
-
-Now clone this repo and start the ``jupyter lab`` in ``src/`` folder.
-
- 
+For the previous work, "System Identification using several Deep Learning architectures" submitted at ICCP 2020 please see: https://github.com/cristi-zz/auto_iccp2020/tree/iccp_2020  
