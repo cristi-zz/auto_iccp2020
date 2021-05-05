@@ -1,9 +1,9 @@
 Support repository for:
 # Inductive biases and Self Supervised Learning in modelling a physical heating system
 
-Paper: https://arxiv.org/abs/2104.11478
-Video: https://odysee.com/@ml-visoft:d/00_Delay_nets:e?r=Azj9J3xvCfqpXHyNdrubia8ymKELp28j
-Data:  https://github.com/cristi-zz/auto_iccp2020/tree/master/data_sample
+ - Paper: https://arxiv.org/abs/2104.11478
+ - Video: https://odysee.com/@ml-visoft:d/00_Delay_nets:e?r=Azj9J3xvCfqpXHyNdrubia8ymKELp28j
+ - Data:  https://github.com/cristi-zz/auto_iccp2020/tree/master/data_sample
 
 ## Overview and motivation
 
