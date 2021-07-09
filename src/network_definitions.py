@@ -631,7 +631,7 @@ class FeatureItemizer(ItemTransform):
     Input for encodes(): Time x K array, where K is no of features + no of commands + no of targets
     Output: Several arrays:
         len(known_set) x past_time representing the known features+commands+targets
-        len(comands_set) x future_len representing the known features
+        len(comands_set) x future_len representing the future proposed commands
         len(target_set) x future_time, future targets, for the future period. Used as ground truth in learning
 
     In setups(), the method will calculate avg and std for each group in feature_groups. If some features are not in
